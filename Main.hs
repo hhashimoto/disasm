@@ -9,6 +9,7 @@ tests = TestList
       -- mode = 00, 00_000_000 ~ 00_111_111
       -- reg -> ignore(=000 fixed)
       -- r/m -> use(=000 -> 111)
+      -- == 0b10001000 0x88(d=from, w=byte)
     , "mov d=from w=byte mode=00 reg=AL r/m=000" ~: disasm "8800"     ~?= "mov [bx+si],al"
     , "mov d=from w=byte mode=00 reg=AL r/m=001" ~: disasm "8801"     ~?= "mov [bx+di],al"
     , "mov d=from w=byte mode=00 reg=AL r/m=010" ~: disasm "8802"     ~?= "mov [bp+si],al"
@@ -17,7 +18,32 @@ tests = TestList
     , "mov d=from w=byte mode=00 reg=AL r/m=101" ~: disasm "8805"     ~?= "mov [di],al"
     , "mov d=from w=byte mode=00 reg=AL r/m=110" ~: disasm "88068807" ~?= "mov [0x788],al"
     , "mov d=from w=byte mode=00 reg=AL r/m=111" ~: disasm "8807"     ~?= "mov [bx],al"
+      -- == 0b10001001 0x89(d=from, w=word)
+      -- 00000000  8900              mov [bx+si],ax
+    , "mov d=from w=word mode=00 reg=AX r/m=000" ~: disasm "8900"     =?= "mov [bx+si],ax"
+      --
+      -- == 0b10001010 0x8A(d=to, w=byte)
+      -- 00000000  8A00              mov al,[bx+si]
+      -- 00000002  8A01              mov al,[bx+di]
+      -- 00000004  8A02              mov al,[bp+si]
+      -- 00000006  8A03              mov al,[bp+di]
+      -- 00000008  8A04              mov al,[si]
+      -- 0000000A  8A05              mov al,[di]
+      -- 0000000C  8A06008A          mov al,[0x8a00]
+    , "mov d=to w=byte mode=00 reg=AL r/m=000"   ~: disasm "8A00"     =?= "mov al,[bx+si]"
+    , "mov d=to w=byte mode=00 reg=AL r/m=001"   ~: disasm "8A01"     =?= "mov al,[bx+di]"
+    , "mov d=to w=byte mode=00 reg=AL r/m=010"   ~: disasm "8A02"     =?= "mov al,[bp+si]"
+    , "mov d=to w=byte mode=00 reg=AL r/m=011"   ~: disasm "8A03"     =?= "mov al,[bp+di]"
+    , "mov d=to w=byte mode=00 reg=AL r/m=100"   ~: disasm "8A04"     =?= "mov al,[si]"
+    , "mov d=to w=byte mode=00 reg=AL r/m=101"   ~: disasm "8A05"     =?= "mov al,[di]"
+    , "mov d=to w=byte mode=00 reg=AL r/m=110"   ~: disasm "8A06008A" =?= "mov al,[0x8a00]"
+      --
+      -- == 0b10001011 0x8B(d=to, w=word)
+      -- 00000000  8B00              mov ax,[bx+si]
+      --
+      --
       -- mode = 01
+      -- == 0b10001000 0x88(d=from, w=byte)
     , "mov d=from w=byte mode=01 reg=AL r/m=000" ~: disasm "884001"   ~?= "mov [bx+si+0x1],al"
     , "mov d=from w=byte mode=01 reg=AL r/m=001" ~: disasm "884101"   ~?= "mov [bx+di+0x1],al"
     , "mov d=from w=byte mode=01 reg=AL r/m=010" ~: disasm "884201"   ~?= "mov [bp+si+0x1],al"
@@ -27,6 +53,7 @@ tests = TestList
     , "mov d=from w=byte mode=01 reg=AL r/m=110" ~: disasm "884601"   ~?= "mov [bp+0x1],al"
     , "mov d=from w=byte mode=01 reg=AL r/m=111" ~: disasm "884701"   ~?= "mov [bx+0x1],al"
       -- mode = 10
+      -- == 0b10001000 0x88(d=from, w=byte)
       -- 00000000  88800123          mov [bx+si+0x2301],al
       -- 00000004  88810123          mov [bx+di+0x2301],al
       -- 00000008  88820123          mov [bp+si+0x2301],al
@@ -44,6 +71,7 @@ tests = TestList
     , "mov d=from w=byte mode=10 reg=AL r/m=110" ~: disasm "88860123"   ~?= "mov [bp+0x2301],al"
     , "mov d=from w=byte mode=10 reg=AL r/m=111" ~: disasm "88870123"   ~?= "mov [bx+0x2301],al"
       -- mode = 11
+      -- == 0b10001000 0x88(d=from, w=byte)
       -- 00000000  88C0              mov al,al
       -- 00000002  88C1              mov cl,al
       -- 00000004  88C2              mov dl,al
@@ -60,9 +88,6 @@ tests = TestList
     , "mov d=from w=byte mode=11 reg=AL r/m=101" ~: disasm "88C5"   ~?= "mov ch,al"
     , "mov d=from w=byte mode=11 reg=AL r/m=110" ~: disasm "88C6"   ~?= "mov dh,al"
     , "mov d=from w=byte mode=11 reg=AL r/m=111" ~: disasm "88C7"   ~?= "mov bh,al"
-      -- 0b10001001 0x89(d=from, w=word)
-      -- 0b10001010 0x8A(d=to, w=byte)
-      -- 0b10001011 0x8B(d=to, w=word)
     ]
 
 main = do
