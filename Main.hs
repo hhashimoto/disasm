@@ -88,6 +88,24 @@ tests = TestList
     , "mov d=from w=byte mode=11 reg=AL r/m=101" ~: disasm "88C5"   ~?= "mov ch,al"
     , "mov d=from w=byte mode=11 reg=AL r/m=110" ~: disasm "88C6"   ~?= "mov dh,al"
     , "mov d=from w=byte mode=11 reg=AL r/m=111" ~: disasm "88C7"   ~?= "mov bh,al"
+
+      -- MOV = Move:
+      -- Immediate to Register/Memory [1100011w] [mod 0 0 0 r/m] [data] [data if w = 1]
+      --
+      -- MOV = Move:
+      -- Immediate to Register [1011 w reg] [data] [data if w = 1]
+      --
+      -- MOV = Move:
+      -- Memory to Accumulator [1010000w] [addr-low] [addr-high]
+      --
+      -- MOV = Move:
+      -- Accumulator to Memory [1010001w] [addr-low] [addr-high]
+      --
+      -- MOV = Move:
+      -- Register/Memory to Segment Register [10001110] [mod 0 reg r/m]
+      --
+      -- MOV = Move:
+      -- Segment Register to Register/Memory [10001100] [mod 0 reg r/m]
     ]
 
 main = do
