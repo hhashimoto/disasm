@@ -3,8 +3,10 @@ import System.IO
 
 tests = TestList
     [ -- DATA TRANSFER
+
       -- MOV = Move:
       -- Register/Memory to/from Register [100010dw] [mod reg r/m]
+      --
       -- 0b10001000 0x88
       -- mode = 00, 00_000_000 ~ 00_111_111
       -- reg -> ignore(=000 fixed)
@@ -40,6 +42,7 @@ tests = TestList
       --
       -- == 0b10001011 0x8B(d=to, w=word)
       -- 00000000  8B00              mov ax,[bx+si]
+    , "mov d=to w=word mode=00 reg=AX r/m=000"   ~: disasm "8B00"     =?= "mov ax,[bx+si]"
       --
       --
       -- mode = 01
@@ -91,6 +94,33 @@ tests = TestList
 
       -- MOV = Move:
       -- Immediate to Register/Memory [1100011w] [mod 0 0 0 r/m] [data] [data if w = 1]
+      --
+      -- mode = 00
+      -- == 11000110 0xc6(w=byte)
+      -- = 0xc6 mod 000 r/m data
+      -- = 0xc6 00000 000 data
+      -- 00000000  C60000            mov byte [bx+si],0x0
+      -- 00000003  C60100            mov byte [bx+di],0x0
+      -- 00000006  C60200            mov byte [bp+si],0x0
+      -- 00000009  C60300            mov byte [bp+di],0x0
+      -- 0000000C  C60400            mov byte [si],0x0
+      -- 0000000F  C60500            mov byte [di],0x0
+      -- 00000012  C60600C607        mov byte [0xc600],0x7
+      -- 00000017  C60700            mov byte [bx],0x0
+    , "mov w=byte mode=00 reg=AL r/m=000" ~: disasm "C60000"     ~?= "mov byte [bx+si],0x0"
+    , "mov w=byte mode=00 reg=AL r/m=001" ~: disasm "C60100"     ~?= "mov byte [bx+di],0x0"
+    , "mov w=byte mode=00 reg=AL r/m=010" ~: disasm "C60200"     ~?= "mov byte [bp+si],0x0"
+    , "mov w=byte mode=00 reg=AL r/m=011" ~: disasm "C60300"     ~?= "mov byte [bp+di],0x0"
+    , "mov w=byte mode=00 reg=AL r/m=100" ~: disasm "C60400"     ~?= "mov byte [si],0x0"
+    , "mov w=byte mode=00 reg=AL r/m=101" ~: disasm "C60500"     ~?= "mov byte [di],0x0"
+    , "mov w=byte mode=00 reg=AL r/m=110" ~: disasm "C60600C607" ~?= "mov byte [0xc600],0x7"
+    , "mov w=byte mode=00 reg=AL r/m=111" ~: disasm "C60700"     ~?= "mov byte [bx],0x0"
+      --
+      -- mode = 01
+      -- = 0xc6 01 000 000(-> 111)
+    , "mov w=byte mode=01 reg=AL r/m=000" ~: disasm "C64000"     ~?= "mov byte [bx+si],0x0"
+      --
+      --
       --
       -- MOV = Move:
       -- Immediate to Register [1011 w reg] [data] [data if w = 1]
