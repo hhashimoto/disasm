@@ -1,5 +1,27 @@
 import Test.HUnit
 import System.IO
+import Data.Char -- digitToInt
+
+-- decimal int -> binary string
+int2bin :: Int -> String
+int2bin x = reverse $ f x
+    where
+      f 0 = ""
+      f n = n `mod` 2 : f (n `div` 2)
+
+-- hex byte -> binary byte
+hex2bin :: String -> String
+hex2bin (x1:x2:_) = hex2bin x1 ++ hex2bin x2
+hex2bin x = int2bin $ digitToInt x
+
+-- disasm internal
+disasmI :: String -> String
+disasmI ['1', '0', '0', '1', '0', '0', '1'] = "mov "
+
+-- disasm receive hex string and output assembly statement
+disasm :: String -> String
+--disasm (x1:x2:xs) = [x1, x2] xs
+--disasm _ = ""
 
 tests = TestList
     [ -- DATA TRANSFER
